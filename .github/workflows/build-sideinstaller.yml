@@ -159,7 +159,6 @@ jobs:
           set -euo pipefail
 
           rm -rf build
-          mkdir -p build/Release-iphoneos
 
           xcodebuild \
             -project SideInstaller.xcodeproj \
@@ -171,7 +170,7 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             DEVELOPMENT_TEAM="" \
             CONFIGURATION_BUILD_DIR="$PWD/build/Release-iphoneos" \
-            clean build
+            build
 
       # ------------------------------------------------------------
       # Locate and verify SideInstaller.app
