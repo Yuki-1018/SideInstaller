@@ -196,16 +196,17 @@ impl GrandSlam {
     /// # Errors
     /// Returns an error if the reqwest client cannot be built
     pub fn build_reqwest_client(debug: bool) -> Result<reqwest::Client, Report> {
-        let cert = Certificate::from_der(APPLE_ROOT)?;
-        let client = ClientBuilder::new()
-            .add_root_certificate(cert)
-            .http1_title_case_headers()
-            .danger_accept_invalid_certs(debug)
-            .connection_verbose(debug)
-            .build()?;
+    let cert = Certificate::from_der(APPLE_ROOT)?;
+    let client = ClientBuilder::new()
+        .add_root_certificate(cert)
+        .http1_title_case_headers()
+        .danger_accept_invalid_certs(debug)
+        .connection_verbose(debug)
+        .pool_max_idle_per_host(0)
+        .build()?;
 
-        Ok(client)
-    }
+    Ok(client)
+}
 }
 
 pub trait GrandSlamErrorChecker {
