@@ -141,6 +141,25 @@ impl GrandSlam {
         Ok(response_plist)
     }
 
+    fn sanitize_client_info(client_info: &str) -> String {
+        const BLOCKED_CLIENT: &str = "(com.apple.dt.Xcode";
+
+        if let Some(start) = client_info.find(BLOCKED_CLIENT) {
+            if let Some(relative_end) = client_info[start..].find(')') {
+                let end = start + relative_end + 1;
+
+                let mut sanitized = String::with_capacity(client_info.len());
+                sanitized.push_str(&client_info[..start]);
+                sanitized.push_str("(com.apple.akd/1.0)");
+                sanitized.push_str(&client_info[end..]);
+
+                return sanitized;
+            }
+        }
+
+        client_info.to_string()
+    }
+
     fn base_headers(
         client_info: &AnisetteClientInfo,
         sms: bool,
@@ -150,9 +169,12 @@ impl GrandSlam {
             headers.insert("Content-Type", HeaderValue::from_static("text/x-xml-plist"));
             headers.insert("Accept", HeaderValue::from_static("text/x-xml-plist"));
         }
+
+        let sanitized_client_info = Self::sanitize_client_info(&client_info.client_info);
+
         headers.insert(
             "X-Mme-Client-Info",
-            HeaderValue::from_str(&client_info.client_info)?,
+            HeaderValue::from_str(&sanitized_client_info)?,
         );
         headers.insert(
             "User-Agent",
